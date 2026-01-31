@@ -1,102 +1,82 @@
-# PFAS-ML
+![](asserts/logo.png)
+  
+  <h1 align="center">Comment on"Predictions of groundwater PFAS occurrence at drinking water supply depths in the United States"by Andrea K. Tokranov et al, Science386,748-755(2024)</h1>
 
-## Overview ✅
+  <p align="center">Yuze Hao, Lan Duo</p>
 
-PFAS-ML is a small reproducible demonstration project for training an XGBoost classifier on the PFAS dataset provided in `data/science.ado6638_tables_s2_to_s5_and s9_to_s13.xlsx`. The repository contains a training and evaluation pipeline that:
+  <p align="center">College of Chemistry and Chemical Engineering, Inner Mongolia University, Hohhot 010021, China.</p>
 
-- Loads Table S9 as observations (observed PFAS detection) and selects a small set of features (modeled thresholds, zip, state) as a simple baseline feature set
-- Trains an XGBoost classifier
-- Computes precision / recall / F1 across a uniform grid of probability thresholds
-- Saves plots and a CSV summarizing per-threshold metrics and the trained model
+  <p align="center">In the paper titled 'Predictions of groundwater PFAS occurrence at drinking water supply depths in the United States' by Tokranov et al. (2024), the authors apply an XGBoost machine learning model to predict the occurrence of PFAS (per- and polyfluoroalkyl substances) in groundwater. The model uses a probability threshold of 0.315 to classify PFAS contamination levels, a key parameter for the model’s predictive capabilities. While the selection of a threshold is essential in model performance, the authors limit their validation to two threshold values—0.315 and 0.5. This comment seeks to critically examine this choice and its potential limitations. In this comment letter, we provide experiences about the best threshold setteling.</p>
+  <p align="center"></p>
 
-This README documents how to install dependencies and run training and evaluation end-to-end.
+![](https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif)
 
----
+# Table of contents
 
-## Requirements 🔧
+- [Introduction](#Introduction)
+- [experienment results](#experienment-results)
+- [fast start](#fast-start)
+- [Reference](#Reference)
+- [Citation](#Citation)
 
-- Python 3.10+ (the dev container in this workspace uses Ubuntu 24.04)
-- The dependencies are listed in `requirements.txt` and can be installed with pip
+# Introduction
 
-Install with:
+![](asserts/figure1.png)
+
+![](asserts/figure3.png)
+
+![](asserts/figure2.png)
+
+# experienment results
+
+![](outputs/threshold_analysis.png)
+
+
+# fast start
+
+Clone this repo:
 
 ```bash
-python3 -m pip install -r requirements.txt
+git clone https://github.com/YuzeHao2023/PFAS-ML.git
+cd PFAS-ML
 ```
 
-(If you run into Excel read errors, ensure `openpyxl` is installed — it is already included in the `requirements.txt`.)
+Install requirements:
 
----
+```bash
+pip3 install -r requirements.txt
+```
 
-## Files & structure 📁
-
-- `src/main2.py` — Main pipeline: loads data, builds features, trains XGBoost, computes threshold metrics, saves `outputs/xgb_model.json`, `outputs/threshold_results.csv` and `outputs/threshold_analysis.png`.
-- `src/main.py` — Lightweight entrypoint that calls the pipeline (convenience wrapper).
-- `data/` — Input data (Excel workbook with tables S2–S13). The pipeline uses **Table S9** by default.
-- `outputs/` — Directory where results are saved after running the pipeline.
-
----
-
-## Quick start — train and evaluate (recommended) ▶️
-
-Train the model and run threshold analysis with the defaults:
+and run experienments:
 
 ```bash
 python3 src/main2.py
+python3 main.py
 ```
 
-This will:
-- Read `Table S9` from `data/science.ado6638_tables_s2_to_s5_and s9_to_s13.xlsx` (skipping header rows)
-- Construct features and labels
-- Train an XGBoost model (saved to `outputs/xgb_model.json`)
-- Evaluate over 101 thresholds in [0, 1]
-- Save `outputs/threshold_results.csv` and `outputs/threshold_analysis.png`
+and change the data path:
 
-You can also run the convenience wrapper (does the same by default):
-
-```bash
-python3 src/main.py
+```python
+DEFAULT_DATA_PATH = '/workspaces/PFAS-ML/data/science.ado6638_tables_s2_to_s5_and s9_to_s13.xlsx'
 ```
 
----
+# Reference
 
-## CLI options (for reproducible runs) 🛠️
+[1] Tokranov, Andrea K., et al. "Predictions of groundwater PFAS occurrence at drinking water supply depths in the United States." Science 386.6723 (2024): 748-755.
 
-`src/main2.py` accepts optional command-line arguments:
+# Citation
 
-- `--data-path` : Path to the Excel file (default: `data/science.ado6638_tables_s2_to_s5_and s9_to_s13.xlsx`)
-- `--sheet-name` : Excel sheet name to use (default: `Table S9`)
-- `--output-dir` : Directory to save outputs (default: `outputs`)
-- `--test-size` : Test split proportion (default: `0.2`)
-- `--seed` : Random seed for reproducibility (default: `42`)
-- `--thresholds` : Number of thresholds to sample between 0 and 1 (default: `101`)
+If this letter is helpful for you, please cite the following publication:
 
-Example (custom run):
-
-```bash
-python3 src/main2.py --data-path "data/science.ado6638_tables_s2_to_s5_and s9_to_s13.xlsx" --sheet-name Table\ S9 --output-dir outputs/custom --thresholds 201
+```bibtex
+@article{hao2024comment,
+  title={Comment on’predictions of groundwater pfas occurrence at drinking water supply depths in the united states’ by andrea k. tokranov et al., science 386, 748-755 (2024)},
+  author={Hao, Yuze},
+  journal={Science},
+  volume={386},
+  number={748-755},
+  pages={2},
+  year={2024}
+}
 ```
 
----
-
-## Outputs ✨
-
-- `outputs/xgb_model.json` — saved XGBoost model
-- `outputs/threshold_results.csv` — per-threshold precision/recall/f1 table
-- `outputs/threshold_analysis.png` — plot of Precision / Recall / F1 vs threshold
-
----
-
-## Notes & next steps 💡
-
-- The current feature set is intentionally small (modeled thresholds, zip code, and one-hot encoded states) to keep the example simple. For production or research purposes, augment features from `Table S5` or external rasters as described in the paper.
-- For a more robust experiment, add cross-validation and hyperparameter search (GridSearchCV or randomized search) and a better feature engineering pipeline.
-
----
-
-If you want, I can:
-1) annotate and improve plots (mark best F1, 0.75 threshold, ROC AUC),
-2) add cross-validation and hyperparameter tuning, or
-3) expand feature extraction to include fields from `Table S11` and other sheets.
-
-Reply with the number of the task you want next. ✅
